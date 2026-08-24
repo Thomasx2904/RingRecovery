@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ringrecovery.b8nfpvrkms.workers.dev/sitemap.xml
+Sitemap: https://ringrecovery.com.au/sitemap.xml
