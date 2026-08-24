@@ -169,7 +169,9 @@ header.nav.solid .away-bar{background:rgba(19,15,8,.72)}
   letter-spacing:.02em;line-height:1.45;color:var(--bone-2);
 }
 .away-bar-in b{color:var(--gold-hi);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.92em}
-.away-bar-in .sep{color:var(--gold);opacity:.5}
+.away-bar-in .sep{color:var(--gold);opacity:.5;display:none}
+.away-long{display:none}
+@media(min-width:760px){.away-long,.away-bar-in .sep{display:inline}}
 .away-dot{
   width:.44rem;height:.44rem;border-radius:50%;flex:none;
   background:var(--gold);box-shadow:0 0 0 3px rgba(201,164,92,.16)
@@ -389,7 +391,7 @@ footer.f a:hover{color:var(--gold-hi)}
       <span class="away-dot" aria-hidden="true"></span>
       <b>Away until 25 Sept</b>
       <span class="sep" aria-hidden="true">&mdash;</span>
-      <span>not taking callouts until then. Leave your details and I'll call you the moment I'm back.</span>
+      <span class="away-long">not taking callouts until then. Leave your details and I&rsquo;ll call you the moment I&rsquo;m back.</span>
     </div>
   </div>
   <!-- /AWAY NOTICE -->
