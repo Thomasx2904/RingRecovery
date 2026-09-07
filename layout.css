@@ -1,0 +1,183 @@
+/* Ring Recovery 2.1 — content-led tablet layout and separate animation controls.
+   Loaded after cinematic.css. No device detection or forced viewport scaling. */
+.hero-grid > *, .journey-grid > *, .about-grid > *, .pricing-grid > *,
+.faq-grid > *, .contact-grid > *, .field-grid > * { min-width: 0; }
+.hero h1 { white-space: normal; }
+/* Contain the rotating sweep without clipping the scanner's corner labels. */
+.scan-sweep-clip { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; pointer-events: none; }
+.eyebrow::before { flex-shrink: 0; }
+.header-actions { flex-shrink: 0; }
+.desktop-nav a { min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; }
+.menu-toggle { min-height: 46px; min-width: 46px; font-size: 12px; }
+.header-cta { min-height: 46px; }
+input { min-height: 48px; }
+input, textarea { scroll-margin-top: calc(var(--header-h) + 20px); scroll-margin-bottom: 100px; }
+.mobile-menu {
+  max-height: min(var(--menu-room, 80vh), calc(100dvh - var(--header-h)));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+
+/* Pause belongs with the experience, not among the business navigation links.
+   It stays in normal document flow: no floating button covering page content. */
+.motion-toggle {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: auto; height: auto; min-width: 44px; min-height: 44px;
+  padding: 10px 14px; border: 1px solid #b9c9b650; border-radius: 999px;
+  color: inherit; font-size: 12px; font-weight: 500; line-height: 1.5;
+  white-space: nowrap; background: transparent; touch-action: manipulation;
+}
+.motion-toggle .pause-icon {
+  position: relative; display: block; width: 14px; height: 14px;
+  flex: 0 0 14px; font-size: 0;
+}
+.motion-toggle .pause-icon::before,
+.motion-toggle .pause-icon::after {
+  content: ''; position: absolute; top: 1px; width: 3px; height: 12px;
+  border-radius: 1px; background: currentColor;
+}
+.motion-toggle .pause-icon::before { left: 2px; }
+.motion-toggle .pause-icon::after { right: 2px; }
+.motion-toggle[aria-pressed="true"] .pause-icon::before {
+  top: 0; left: 3px; width: 0; height: 0; border-radius: 0; background: none;
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+  border-left: 10px solid currentColor;
+}
+.motion-toggle[aria-pressed="true"] .pause-icon::after { display: none; }
+.motion-toggle:disabled { opacity: .8; }
+.hero-foot { flex-wrap: wrap; gap: 22px; }
+.hero-foot > .motion-toggle { margin-left: auto; color: #d9dfcf; }
+.menu-preferences { border-top: 1px solid #ffffff1c; padding-top: 20px; margin-top: 15px; }
+.menu-preferences > p { font-size: 10px; letter-spacing: .14em; color: #b7c6b9; margin-bottom: 12px; }
+.footer-preferences {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-block: 20px; border-top: 1px solid var(--line);
+}
+.footer-preferences > span { font-size: 12px; color: var(--muted); }
+.footer-preferences .motion-toggle { border-color: #61716a70; color: var(--ink); }
+.footer-preferences .motion-toggle:hover { background: #173b3509; }
+.editing-enquiry .mobile-dock { visibility: hidden; pointer-events: none; }
+
+/* Tablets use a proper menu instead of miniature desktop navigation.
+   The same breakpoint is handled in layout.js on window-size changes. */
+@media (max-width: 1199px) {
+  .desktop-nav { display: none; }
+  .menu-toggle { display: inline-flex; }
+  .nav-row { min-height: 76px; height: auto; padding-block: 15px; gap: 20px; }
+  .header-actions { gap: 12px; }
+}
+@media (min-width: 701px) and (max-width: 1199px) {
+  .wrap { width: calc(100% - clamp(48px, 7vw, 80px)); }
+  .section { padding-block: 80px; }
+  .brand > svg { width: 30px; height: 37px; }
+  .brand > span { font-size: 27px; }
+  .brand small { font-size: 8px; }
+  .header-cta { display: inline-flex; padding: 12px 18px; font-size: 13px; }
+  .menu-toggle { padding: 12px 16px; font-size: 13px; }
+  .availability { font-size: 11px; padding: 9px 20px; }
+  .hero { padding-top: 20px; }
+  .hero-grid { grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 22px; min-height: 500px; }
+  .hero-copy { padding-block: 36px 48px; }
+  .hero h1 { font-size: clamp(46px, 6.2vw, 74px); }
+  .hero .eyebrow { white-space: normal; font-size: 9px; letter-spacing: .13em; }
+  .hero-description { font-size: 16px; }
+  .hero-note { font-size: 11px; }
+  .hero-actions { gap: 18px; }
+  .hero-actions .button { font-size: 13px; gap: 16px; padding-inline: 18px; min-height: 52px; }
+  .hero-actions .text-link { font-size: 12px; gap: 12px; }
+  .ring-stage { width: 100%; max-width: 480px; margin-inline: auto; transform: none; }
+  .stage-detail { right: 0; }
+  .stage-caption { bottom: 0; font-size: 11px; }
+  .stage-caption em { font-size: 22px; }
+  .hero-foot { padding-block: 20px 44px; }
+  .hero-facts { gap: 28px; font-size: 12px; }
+  .hero-facts b { font-size: 26px; }
+  .scroll-cue { font-size: 9px; }
+  .intro-statement { font-size: clamp(46px, 6.2vw, 68px); }
+  .intro-bottom p { font-size: 16px; }
+  .finds-grid { gap: 28px; }
+  .finds-grid h3 { font-size: 16px; }
+  .finds-grid p { font-size: 14px; }
+  .journey-grid { gap: 40px; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); }
+  .journey h2 { font-size: 50px; }
+  .journey-copy > p, .journey-steps p { font-size: 14px; }
+  .journey-steps h3 { font-size: 16px; }
+  .journey-heading .eyebrow { font-size: 10px; }
+  .journey-heading .text-link { font-size: 12px; }
+  .journey-foot p { font-size: 12px; }
+  .scanner { width: 100%; max-width: 420px; margin-inline: auto; }
+  .scanner-label { font-size: 9px; }
+  .scan-corner { font-size: 9px; }
+  .about-grid, .pricing-grid, .contact-grid, .faq-grid { gap: 40px; }
+  .about-copy > p:not(.eyebrow), .section-lede { font-size: 16px; }
+  .price-panel, .enquiry-panel { padding: 32px; }
+  .price-panel > p, .price-inclusions li { font-size: 14px; }
+  .price-top { font-size: 10px; }
+  .extra-row b, .price-total { font-size: 12px; }
+  .faq-list summary { font-size: 16px; min-height: 64px; }
+  .answer { font-size: 15px; }
+  .area-list li { font-size: 14px; }
+  .contact-lines span.email-value { font-size: 15px; }
+  .form-intro { font-size: 14px; }
+  label, .field label { font-size: 13px; }
+  .contact-help, .privacy-note { font-size: 12px; }
+  .field-grid { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* Portrait tablets and Split View get full-width reading and form columns. */
+@media (min-width: 701px) and (max-width: 999px) {
+  .about-grid, .pricing-grid, .contact-grid, .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 38px; }
+  .about-copy { order: -1; }
+  .about-copy h2, .pricing h2, .faq-grid h2 { font-size: clamp(48px, 6.5vw, 62px); }
+  .recovery-photo { aspect-ratio: 1.45; }
+  .price-panel, .enquiry-panel { width: 100%; max-width: 760px; margin-inline: auto; padding: 38px; }
+  .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .journey-grid { grid-template-columns: minmax(0, 1fr); }
+  .journey-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .journey-steps li { display: block; }
+  .journey-steps h3 { margin-top: 10px; }
+  .scanner { max-width: 400px; }
+  .hero-foot { gap: 20px; }
+  .hero-foot > .motion-toggle { margin-left: 0; }
+}
+@media (min-width: 701px) and (max-width: 1100px) and (orientation: portrait) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 0; min-height: 0; }
+  .hero-copy { padding-block: 24px 4px; }
+  .hero h1 { font-size: clamp(64px, 8.5vw, 88px); }
+  .hero-description { max-width: 52ch; margin-top: 20px; }
+  .hero-description br { display: none; }
+  .hero-actions { margin-top: 22px; }
+  .hero .eyebrow { margin-bottom: 23px; font-size: 10px; }
+  .ring-stage { width: min(470px, 70%); margin-block: 18px 20px; aspect-ratio: 1.25; }
+  .stage-coordinate { top: 4%; }
+  .stage-caption { left: 2%; }
+}
+
+/* Don't pin a full-height scene inside an iPad's changing browser viewport.
+   The scanner and section reveals still animate with ordinary touch scrolling. */
+@media (max-width: 1199px), (any-pointer: coarse) {
+  .motion-ready:not(.motion-off) .journey { height: auto; min-height: 0; }
+  .motion-ready:not(.motion-off) .journey-sticky,
+  .journey-sticky { position: relative; top: 0; height: auto; min-height: 0; display: block; padding-block: 64px; }
+  .journey-steps li { opacity: 1 !important; }
+}
+@media (min-width: 701px) {
+  body { padding-bottom: 0; }
+  .mobile-dock { display: none; }
+}
+@media (max-width: 700px) {
+  .header-cta { display: none; }
+  .nav-row { min-height: 72px; padding-block: 12px; gap: 12px; }
+  .hero-foot { display: grid; grid-template-columns: auto 1fr; gap: 18px 12px; }
+  .hero-facts { justify-content: flex-end; }
+  .hero-foot > .motion-toggle { grid-column: 1 / -1; justify-self: end; margin: 0; }
+  .motion-toggle { font-size: 12px; min-height: 44px; padding: 10px 14px; min-width: 44px; }
+  .footer-preferences { gap: 12px; }
+  .journey-sticky { padding-block: 48px; }
+  .mobile-dock { padding-left: max(17px, env(safe-area-inset-left)); padding-right: max(17px, env(safe-area-inset-right)); }
+}
+@media (hover: none) {
+  .finds-grid article:hover, .round-link:hover { transform: none; }
+  .text-link:hover { gap: 22px; }
+}
+@media print { .motion-toggle, .menu-preferences, .footer-preferences { display: none !important; } }
