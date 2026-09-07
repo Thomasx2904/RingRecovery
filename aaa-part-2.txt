@@ -1,0 +1,111 @@
+---------- static/stat relic completion ---------- */
+const apply0=applyStats;
+applyStats=function(){
+ const pos={x:P.x,y:P.y,vx:P.vx,vy:P.vy,hp:P.hp};
+ apply0();
+ // restore persistent run multipliers that older patches could wipe
+ P.damage*=sealStealBonus*sacramentWaveBuff;P.maxHp+=coinBossHpBonus;
+ if(has('rapid',4))P.shotSpeed*=1.35;
+ const cleared=Math.max(0,(cycle-1)*10+(wave-1));
+ if(has('coin'))P.damage*=1+cleared*(has('coin',2)?.07:.04);
+ if(has('marrow',3)){const miss=1-P.hp/P.maxHp;P.damage*=1+Math.min(.25,miss*.25);}
+ if(has('marrow',5)&&P.hp/P.maxHp<.3){P.damage*=1.6;P.speed*=1.2;}
+ if(has('seal',4))P.bossBonus=.20; else P.bossBonus=0;
+ if(has('brand',4))P.brandBonus=.18; else P.brandBonus=0;
+ if(has('bellows')&&totalTime-lastHurtAt>4){P.fireRate/=has('bellows',2)?1.22:1.12;if(has('bellows',3)&&totalTime-lastHurtAt>8)P.damage*=1.10;}
+ if(has('leech',3)&&leechCharge>0)P.damage*=1+Math.min(.18,(leechCharge/(has('leech',2)?32:18))*.18);
+ if(galeBuff>0)P.speed*=1.2;
+ P.x=pos.x;P.y=pos.y;P.vx=pos.vx;P.vy=pos.vy;P.hp=Math.min(P.maxHp,pos.hp);
+};
+
+/* ---------- shot metadata / homing / projectile tier completion ---------- */
+const shot0=makeShot;
+makeShot=function(x,y,a,dmg,scale=1,pierce=0,count=0,split=false){
+ const low=has('glass',5)&&P.hp/P.maxHp<.4;
+ if(low){dmg*=2;pierce+=2;scale*=1.15;}
+ if(has('glass',4))scale*=Math.min(1.75,.9+P.damage/85);
+ if(has('ricochet',2)&&P.ricochet)dmg*=1.35;
+ const before=shots.length;shot0(x,y,a,dmg,scale,pierce,count,split);
+ for(let i=before;i<shots.length;i++){
+   const s=shots[i];s.hitCount=0;s.initialBounces=s.bounces||0;s.id=++runtime.shotSeq;
+   if(has('mirror',4))s.homing=.10;
+   if(has('ricochet',3)&&s.bounces)s.homing=.16;
+ }
+};
+
+const shots0=updateShots;
+updateShots=function(dt){
+ // pre-steer player projectiles for homing tiers
+ for(const s of shots){if(s.owner==='p'&&s.homing){let t=nearestEnemy(s.x,s.y);if(t){let sp=Math.hypot(s.vx,s.vy),ta=Math.atan2(t.y-s.y,t.x-s.x),ca=Math.atan2(s.vy,s.vx),da=Math.atan2(Math.sin(ta-ca),Math.cos(ta-ca));ca+=da*Math.min(1,dt*(2.2+s.homing*8));s.vx=Math.cos(ca)*sp;s.vy=Math.sin(ca)*sp;}}}
+ const bounceBefore=new Map(shots.filter(s=>s.owner==='p').map(s=>[s.id,s.bounces||0]));
+ shots0(dt);
+ for(const s of shots){if(s.owner==='p'&&bounceBefore.has(s.id)&&(s.bounces||0)<bounceBefore.get(s.id)){
+   if(has('ricochet',4))explode(s.x,s.y,P.damage*.55,55);
+   if(has('ricochet',3))s.homing=.25;
+ }}
+ // Halo V physically cuts down hostile shots.
+ if(has('halo',5)&&P.orbit){shots=shots.filter(s=>!(s.owner==='e'&&Math.abs(dist(s,P)-62)<14));}
+ // Ward V reflects while the invulnerability window is active.
+ if(has('ward',5)&&wardInv>0){for(const s of shots)if(s.owner==='e'&&dist(s,P)<72){s.owner='p';s.vx*=-1.25;s.vy*=-1.25;s.damage=P.damage*.8;s.pierce=1;s.life=1.5;}}
+};
+
+/* ---------- completed chain / hit behavior ---------- */
+chainFrom=function(e,dmg,jumps){
+ let cur=e,used=new Set([e]),max=has('fork',3)?250:175;
+ for(let i=0;i<jumps;i++){
+   let t=null,bd=max;
+   // Chain of Orra gets priority when synergized.
+   for(const q of enemies){if(q.dead||used.has(q))continue;let d=dist(cur,q);let priority=synergyActive('chains','fork')&&cur.linkId&&q.linkId===cur.linkId?-70:0;if(d+priority<bd){bd=d+priority;t=q;}}
+   if(!t)break;let dd=dmg;if(has('fork',4)&&Math.random()<P.crit)dd*=P.critMult;t.hp-=dd;if(synergyActive('fork','ember'))t.burn=2.2;if(has('brand')&&synergyActive('brand','fork'))t.brand=(t.brand||0)+1;used.add(t);for(let k=0;k<5;k++)particle((cur.x+t.x)/2,(cur.y+t.y)/2,'#8fe4dc',95);cur=t;if(t.hp<=0)killEnemy(t);
+ }
+};
+const hit0=hitEnemy;
+hitEnemy=function(e,s){
+ if(!e||e.dead)return;
+ const shotRef=s;s={...s};
+ // Pierce II: each previous target increases damage.
+ if(has('pierce',2)&&s.hitCount>0)s.damage*=1+.12*s.hitCount;
+ // Ember IV crit bonus against burning targets.
+ let oldCrit=P.crit;if(has('ember',4)&&e.burn>0)P.crit+=.18;
+ // Crit V pity system.
+ if(has('crit',5))P.crit=Math.min(.98,P.crit+critPity*.08);
+ // Quarry focus ramp.
+ if(has('quarry')){if(quarryTarget===e){quarryHits++}else{quarryTarget=e;quarryHits=1}let cap=has('quarry',2)?.35:.20,rate=(e.elite&&has('quarry',3))?.035:.02;s.damage*=1+Math.min(cap,quarryHits*rate);}
+ if(has('quarry',4)&&quarryHits>=12&&quarryHits%4===0){let q=nearestEnemy(e.x,e.y);if(q&&q!==e)makeShot(e.x,e.y,Math.atan2(q.y-e.y,q.x-e.x),P.damage*.48,.6,0,0);}
+ // Brand IV damage amp.
+ if(has('brand',4)&&e.brand>0)s.damage*=1.18;
+ // Execute V and synergy threshold.
+ const execThreshold=(has('execute',2)?.27:.20)+(synergyActive('quarry','execute')?.08:0);
+ if(has('execute',5)&&e.elite&&e.hp/e.maxHp<.15)e.hp=0;
+ // Needle system.
+ if(has('needle')){e.needles=(e.needles||0)+1;let req=6;if(e.needles>=req){e.needles=0;let nd=P.damage*(has('needle',2)?1.6:1);e.hp-=nd;if(has('needle',3)){e.bleed=3;e.bleedStacks=Math.max(e.bleedStacks||0,3)}explode(e.x,e.y,nd*.45,62);if(has('needle',5))for(let i=0;i<6;i++)makeShot(e.x,e.y,i*TAU/6,P.damage*.42,.55,0,0);}}
+ // Brand proc.
+ if(has('brand')){brandN++;if(brandN%(7)===0)e.brand=(e.brand||0)+1;if((e.brand||0)>=1&&Math.random()<(has('brand',2)?.18:.09)){e.brand=0;let bd=P.damage*(has('brand',2)?.7:.45);explode(e.x,e.y,bd,has('brand',3)?92:62);if(has('brand',3)||synergyActive('brand','ember'))for(const q of enemies)if(!q.dead&&dist(e,q)<100)q.burn=2.2;if(has('brand',5))for(let j=0;j<2;j++){let q=nearestEnemy(e.x,e.y);if(q&&q!==e)q.brand=(q.brand||0)+1;}}}
+ // Frost III/V and bleed burst completion are applied after old hit.
+ const wasSlow=e.slow>0,preHp=e.hp,wasExecute=e.hp/e.maxHp<execThreshold;
+ if(has('fortify',2)&&(fortifyTime>.7||fortPersist>0))s.damage*=1.2;
+ if(phoenixRage>0)s.damage*=2;
+ if(has('bellows',3)&&totalTime-lastHurtAt>8)s.damage*=1.10;
+ if(galeBuff>0&&has('mantle',3))s.damage*=1.08;
+ const baseExec=has('execute',2)?.27:.20;if(synergyActive('quarry','execute')&&e.hp/e.maxHp<execThreshold&&e.hp/e.maxHp>=baseExec)s.damage*=1.35;
+ hit0(e,s);shotRef.hitCount=(shotRef.hitCount||0)+1;s.hitCount=shotRef.hitCount;
+ if(has('pierce',4)&&s.hitCount>1){e.bleed=3;e.bleedStacks=Math.min(5,(e.bleedStacks||0)+1)}
+ P.crit=oldCrit;
+ if(has('crit',5)){const dealt=preHp-e.hp;if(dealt>P.damage*1.4)critPity=0;else critPity=Math.min(8,critPity+1);}
+ if(has('frost',3)){frostHitN++;if(frostHitN%8===0)e.slow=Math.max(e.slow,1.15)}
+ if(has('frost',4)&&wasSlow)e.hp-=s.damage*.35;
+ if(has('bleed',3)&&e.bleedStacks>0)e.slow=Math.max(e.slow,.45);
+ if(has('bleed',4)&&e.bleedStacks>=5&&!e.bleedBurstLock){e.bleedBurstLock=.45;let bd=P.bleedDps*6;e.hp-=bd;explode(e.x,e.y,bd*.45,65);if(has('bleed',5)){for(const q of enemies)if(!q.dead&&dist(e,q)<105){q.burn=Math.max(q.burn||0,e.burn||0);q.void=Math.max(q.void||0,e.void||0);}}e.bleedStacks=1;}
+ if(has('fork',5)){forkHitN++;if(forkHitN%5===0)chainFrom(e,P.chainDamage*1.2,6);}
+ if(has('blast',5)&&e.elite){e.bigBellCd=(e.bigBellCd||0);if(e.bigBellCd<=0){explode(e.x,e.y,P.blastDamage*2,170);e.bigBellCd=2.5;}}
+ if(has('execute',3)&&wasExecute&&e.hp<=0)heal(2);
+ if(has('chains',3)&&e.linkId){let q=enemies.find(x=>!x.dead&&x!==e&&x.linkId===e.linkId);if(q){q.hp-=s.damage*.15;if(q.hp<=0)killEnemy(q);}}
+ if(has('ricochet',5)&&shotRef.owner==='p'&&e.hp>0&&(shotRef.enemyBounces||0)<4){let q=nearestEnemy(e.x,e.y);if(q&&q!==e){let before=shots.length;makeShot(e.x,e.y,Math.atan2(q.y-e.y,q.x-e.x),s.damage*.72,.75,0,0);if(shots[before])shots[before].enemyBounces=(shotRef.enemyBounces||0)+1;}}
+ if(e.hp<=0&&!e.dead)killEnemy(e);
+};
+
+/* fix accidental quote typo safely by replacing the function immediately if parser reaches here */
+
+/* ---------- kill/heal/damage/dash completion ---------- */
+const heal0=heal;
+heal=functio
