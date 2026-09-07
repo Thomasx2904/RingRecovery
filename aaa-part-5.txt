@@ -1,0 +1,52 @@
+const update0=update;update=function(dt){
+ update0(dt);if(paused)return;
+ // additional pack pressure, bounded for iPhone performance
+ if(state==='wave'){difficultySpawnClock-=dt;let target=Math.min(72,20+wave*2+cycle*7);if(difficultySpawnClock<=0&&enemies.length<target){difficultySpawnClock=Math.max(.16,.52-cycle*.035-wave*.012);let pack=1+(cycle>=2?1:0)+(wave>=7&&Math.random()<.45?1:0);for(let i=0;i<pack&&enemies.length<target;i++)spawnEnemy();}}
+ // Tier IV curse silences specials at V.
+ if(has('curse',5)){let rad=120+tier('curse')*14;for(const e of enemies)if(!e.dead&&dist(P,e)<rad){e.special=Math.max(e.special||0,.5);e.fire=Math.max(e.fire||0,.45);}}
+ // Chain damage sharing uses damage deltas approximated by linked pulse.
+ if(has('chains',3)){for(const e of enemies)if(!e.dead&&e.linkId){e.linkPulse=(e.linkPulse||0)-dt;if(e.linkPulse<=0){e.linkPulse=.35;let q=enemies.find(x=>!x.dead&&x!==e&&x.linkId===e.linkId);if(q&&e.hp<e.maxHp*.9)q.hp-=P.damage*.025;}}}
+};
+
+/* ---------- visual overhaul ---------- */
+const oldDrawWorld=drawWorld;
+drawWorld=function(){
+ // layered parchment-gothic ground with parallax haze, roads, ruins, foreground silhouettes
+ let grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,'#15131a');grd.addColorStop(.55,'#0e0d12');grd.addColorStop(1,'#08070a');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+ const cell=220,cx=Math.floor(camera.x/cell),cy=Math.floor(camera.y/cell);
+ for(let yy=cy-4;yy<=cy+4;yy++)for(let xx=cx-6;xx<=cx+6;xx++)drawRichChunk(xx,yy,cell);
+ // low fog parallax
+ ctx.save();ctx.globalAlpha=.10;for(let i=0;i<9;i++){let x=((i*241-camera.x*.08)% (W+320))-160,y=H*.18+((i*97-camera.y*.04)%(H*.72));let g=ctx.createRadialGradient(x,y,0,x,y,180);g.addColorStop(0,'#8b786344');g.addColorStop(1,'#0000');ctx.fillStyle=g;ctx.fillRect(x-180,y-180,360,360);}ctx.restore();
+ drawVignette();
+};
+function drawRichChunk(cx,cy,s){let ox=cx*s-camera.x+W/2,oy=cy*s-camera.y+H/2,h=hash(cx,cy),h2=hash(cx,cy,8);ctx.save();ctx.translate(ox,oy);
+ ctx.fillStyle=h>.53?'#131118':'#0f0e13';ctx.fillRect(0,0,s+1,s+1);
+ // stone strata / moss / manuscript scratches
+ ctx.globalAlpha=.34;ctx.strokeStyle=h>.5?'#655743':'#503c42';ctx.lineWidth=1;for(let k=0;k<5;k++){ctx.beginPath();let yy=24+k*42+hash(cx+k,cy,3)*20;ctx.moveTo(-8,yy);for(let x=0;x<=s;x+=38)ctx.lineTo(x,yy+Math.sin((x+k*29)*.035+h2*5)*8);ctx.stroke();}
+ ctx.globalAlpha=.22;for(let i=0;i<18;i++){let x=hash(cx*19+i,cy,1)*s,y=hash(cx,cy*17+i,2)*s,r=2+hash(i,cx,cy)*8;ctx.fillStyle=i%3?'#3d4432':'#4c342f';ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
+ ctx.globalAlpha=1;
+ // authored-feeling landmark silhouettes per chunk
+ if(h>.76)richRuin(s,h2);else if(h>.51)richGrove(s,h2);else if(h>.28)richRoad(s,h2);else richShrine(s,h2);
+ ctx.restore();}
+function richRoad(s,k){ctx.save();ctx.translate(s/2,s/2);ctx.rotate((k-.5)*.5);let g=ctx.createLinearGradient(0,-28,0,28);g.addColorStop(0,'#1b1717');g.addColorStop(.5,'#2c251d');g.addColorStop(1,'#161317');ctx.fillStyle=g;ctx.fillRect(-s*.7,-25,s*1.4,50);ctx.strokeStyle='#9b805244';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-s*.7,-18);ctx.lineTo(s*.7,-18);ctx.moveTo(-s*.7,18);ctx.lineTo(s*.7,18);ctx.stroke();for(let i=-3;i<=3;i++){ctx.fillStyle='#0d0c10';ctx.fillRect(i*41-3,-30,6,60);}ctx.restore();}
+function richRuin(s,k){ctx.fillStyle='#171419';ctx.strokeStyle='#8a76505c';ctx.lineWidth=2;for(let i=0;i<4;i++){let x=24+hash(i,k*11,1)*(s-48),y=32+hash(i,k*7,2)*(s-64),w=28+hash(i,k*5,3)*38,h=30+hash(i,k*13,4)*55;ctx.fillRect(x-w/2,y-h/2,w,h);ctx.strokeRect(x-w/2,y-h/2,w,h);ctx.fillStyle='#08070a';ctx.beginPath();ctx.arc(x,y-h*.1,Math.min(9,w*.2),Math.PI,0);ctx.fill();ctx.fillStyle='#171419';ctx.strokeStyle='#8a76505c';}ctx.strokeStyle='#bd966738';ctx.beginPath();ctx.arc(s*.5,s*.5,52,0,TAU);ctx.stroke();}
+function richGrove(s,k){for(let i=0;i<8;i++){let x=18+hash(i,k*6,1)*(s-36),y=22+hash(i,k*8,2)*(s-44),r=8+hash(i,k*5,4)*13;ctx.strokeStyle='#6c594a88';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(x,y+r);ctx.lineTo(x,y-r);ctx.lineTo(x-r*.8,y-r*1.55);ctx.moveTo(x,y-r*.45);ctx.lineTo(x+r*.9,y-r*1.25);ctx.moveTo(x-2,y-r*.9);ctx.lineTo(x+r*.35,y-r*1.7);ctx.stroke();ctx.fillStyle='#09080b99';ctx.beginPath();ctx.ellipse(x,y+r+5,r*.9,r*.35,0,0,TAU);ctx.fill();}}
+function richShrine(s,k){let x=s*(.3+k*.4),y=s*(.35+hash(k,9)*.3);ctx.strokeStyle='#a4885d66';ctx.fillStyle='#151217';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-34);ctx.lineTo(x+22,y+24);ctx.lineTo(x-22,y+24);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#bd5f5555';ctx.beginPath();ctx.arc(x,y,28,0,TAU);ctx.moveTo(x-20,y);ctx.lineTo(x+20,y);ctx.moveTo(x,y-20);ctx.lineTo(x,y+20);ctx.stroke();for(let i=0;i<5;i++){ctx.fillStyle='#b67a4b55';ctx.beginPath();ctx.arc(x+rnd(50,-50),y+rnd(38,-38),2,0,TAU);ctx.fill();}}
+
+drawPlayer=function(){let p=w2s(P.x,P.y),a=Math.atan2(P.vy,P.vx);ctx.save();ctx.translate(p.x,p.y);let bob=Math.sin(totalTime*7)*1.6;ctx.translate(0,bob);ctx.shadowBlur=20;ctx.shadowColor='#e6c98c66';
+ // cloak silhouette
+ ctx.fillStyle='#30242d';ctx.strokeStyle='#a58662';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(0,-19);ctx.quadraticCurveTo(15,-8,13,16);ctx.quadraticCurveTo(0,24,-13,16);ctx.quadraticCurveTo(-15,-8,0,-19);ctx.fill();ctx.stroke();
+ // ivory mask
+ ctx.fillStyle='#e8dcc5';ctx.beginPath();ctx.ellipse(0,-9,8,10,0,0,TAU);ctx.fill();ctx.strokeStyle='#6c5342';ctx.stroke();ctx.fillStyle='#1c1118';ctx.beginPath();ctx.ellipse(-3,-10,1.7,3,0,0,TAU);ctx.ellipse(3,-10,1.7,3,0,0,TAU);ctx.fill();
+ // gold sash and blade
+ ctx.strokeStyle='#d4b36c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-8,3);ctx.lineTo(9,6);ctx.stroke();ctx.rotate(isFinite(a)?a:0);ctx.fillStyle='#cbb37a';ctx.beginPath();ctx.moveTo(9,-2);ctx.lineTo(24,0);ctx.lineTo(9,2);ctx.closePath();ctx.fill();ctx.restore();
+ if(bloodShield>0||wardInv>0){ctx.save();ctx.strokeStyle=wardInv>0?'#e8d7a0':'#9d4751';ctx.globalAlpha=.7;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,24+Math.sin(totalTime*6)*2,0,TAU);ctx.stroke();ctx.restore();}
+ if(P.orbit)for(let j=0;j<P.orbit;j++){let aa=totalTime*2.8+j*TAU/P.orbit,o=w2s(P.x+Math.cos(aa)*62,P.y+Math.sin(aa)*62);ctx.save();ctx.translate(o.x,o.y);ctx.rotate(aa);ctx.shadowBlur=8;ctx.shadowColor='#e1bd72';ctx.fillStyle='#d8bd7e';ctx.beginPath();ctx.moveTo(-10,-3);ctx.lineTo(11,0);ctx.lineTo(-8,4);ctx.lineTo(-3,0);ctx.closePath();ctx.fill();ctx.restore();}
+ // familiars
+ for(const o of soulOrbs){let aa=totalTime*(o.giant?1.2:2)+o.a,rr=o.giant?78:54,q=w2s(P.x+Math.cos(aa)*rr,P.y+Math.sin(aa)*rr);ctx.save();ctx.translate(q.x,q.y);ctx.shadowBlur=o.giant?18:10;ctx.shadowColor='#9ed1c7';ctx.fillStyle=o.giant?'#c2d9c6':'#8eaaa5';ctx.beginPath();ctx.arc(0,0,o.giant?10:5,0,TAU);ctx.fill();ctx.restore();}
+};
+
+drawEnemy=function(e){let p=w2s(e.x,e.y);if(!onScreen(p,120))return;ctx.save();ctx.translate(p.x,p.y);let ang=Math.atan2(P.y-e.y,P.x-e.x),pulse=1+Math.sin(totalTime*5+e.x*.01)*.03;ctx.scale(pulse,pulse);ctx.shadowBlur=e.elite?18:7;ctx.shadowColor=e.elite?'#d2a75566':'#0008';ctx.lineWidth=e.elite?2.2:1.4;ctx.strokeStyle=e.elite?'#e0bd72':'#8e7764';
+ const c=enemyDefs[e.t].col;ctx.fillStyle=e.elite?'#856438':c;
+ if(e.t==='penitent'){ctx.rotate(ang+Math.PI/2);ctx.beginPath();ctx.moveTo(0,-16);ctx.quadraticCurveTo(13,-6,11,16);ctx.lineTo(0,11);ctx.lineTo(-11,16);ctx.quadraticCurveTo(-13,-6,0,-16);ctx.fill();ctx.stroke();ctx.fillStyle='#d2bfa4';ctx.beginPath();ctx.ellipse(0,-8,5,7,0,0,TAU);ctx.fill();}
+ else if(e.t==='hound'){ctx.rotate(ang);ctx.beginPath();ctx.moveTo(16,0);ctx.lineTo(3,-8);ctx.lineTo(-12,-6);ctx.lineTo(-17,0);ctx.lineTo(-12,7);ctx.lineTo(3,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#d69d60';ctx.beginPa
