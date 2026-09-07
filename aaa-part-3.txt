@@ -1,0 +1,73 @@
+n(v){
+ const before=P.hp,cap=P.maxHp;heal0(v);const over=Math.max(0,before+v-cap);
+ if(over>0&&has('blood',3)){bloodShield=Math.min(20,bloodShield+over);}
+ if(over>0&&has('leech')){leechCharge=Math.min(has('leech',2)?32:18,leechCharge+over*(synergyActive('leech','blood')?2:1));}
+ if(P.hp>=P.maxHp&&has('blood',5)&&v>0&&bloodBladeCd<=0){bloodBladeCd=.45;for(let i=0;i<4;i++)makeShot(P.x,P.y,i*TAU/4,P.damage*.55,.7,1,0);}
+};
+const hurt0=hurtPlayer;
+hurtPlayer=function(dmg,src){
+ if(wardInv>0)return;
+ if(bloodShield>0){const used=Math.min(bloodShield,dmg);bloodShield-=used;dmg-=used;if(dmg<=0){newFx.push({type:'shield',x:P.x,y:P.y,t:.25});return;}}
+ const hp0=P.hp,pho0=P.phoenixReady;hurt0(dmg,src);lastHurtAt=totalTime;
+ if(has('bellows',4)){for(const e of enemies)if(!e.dead&&dist(P,e)<120){let a=Math.atan2(e.y-P.y,e.x-P.x);e.x+=Math.cos(a)*55;e.y+=Math.sin(a)*55;e.slow=Math.max(e.slow,.35);}newFx.push({type:'ring',x:P.x,y:P.y,t:.35,r:120,col:'#d8b985'});}
+ if(has('thorn',3)){for(let i=0;i<4;i++)makeShot(P.x,P.y,i*TAU/4,P.damage*(has('thorn',4)&&Math.random()<P.crit?P.critMult:.5),.65,0,0);}
+ if(P.hp<=0&&has('heart',5)&&!heartSave){heartSave=true;P.hp=P.maxHp*.5;P.ifr=2;toast('SECOND HEART','THE COVENANT REFUSES YOU');if(synergyActive('omen','heart'))summonGuardian(true);}
+ if(pho0&&P.phoenixReady===0&&has('phoenix',5))phoenixRage=6;
+};
+const dash0=dash;
+dash=function(){
+ const ready=P.dashLeft<=0,ox=P.x,oy=P.y,beforeShots=shots.length;dash0();if(!ready)return;if(has('raven',4)){for(let i=beforeShots;i<shots.length;i++)if(shots[i].owner==='p')shots[i].homing=.24;}
+ if(has('storm',4))stormCharge=Math.min(1,(stormCharge||0)+.4);
+ if(has('swift',5)){const a=Math.atan2(P.vy,P.vx);for(let j=1;j<=4;j++)explode(ox+Math.cos(a)*j*28,oy+Math.sin(a)*j*28,P.damage*.38,46);}
+ if(has('thorn',5)){for(let j=0;j<5;j++)newFx.push({type:'thorn',x:ox+(P.x-ox)*j/4,y:oy+(P.y-oy)*j/4,t:3,r:34,col:'#b58a63'});}
+ if(has('needle',4)){for(const e of enemies)if(!e.dead&&dist(P,e)<260&&(e.needles||0)>0){let d=P.damage*.32*e.needles;e.needles=0;e.hp-=d;explode(e.x,e.y,d*.4,55);if(e.hp<=0)killEnemy(e);}}
+ if(has('leech',4)&&leechCharge>1){let n=Math.max(2,Math.floor(leechCharge/5));let spend=leechCharge*.5;leechCharge-=spend;for(let i=0;i<n;i++)makeShot(P.x,P.y,i*TAU/n,P.damage*.6,.8,1,0);}
+};
+const kill0=killEnemy;
+killEnemy=function(e){
+ if(!e||e.dead)return;const ex=e.x,ey=e.y,elite=e.elite,wasBurn=e.burn>0,wasSlow=e.slow>0,wasVoid=e.void>0,wasBleed=e.bleedStacks||0,link=e.linkId;
+ kill0(e);
+ swiftKills++;if(has('swift',4)&&swiftKills>=10){swiftKills=0;P.dashLeft=0;toast('PILGRIM SPURS','DASH RESTORED');}
+ if(has('overdrive')){overStacks=Math.min(has('overdrive',3)?10:5,overStacks+1);overTimer=has('overdrive',2)?4:2.6;}
+ if(has('ember',5)&&wasBurn)explode(ex,ey,P.burnDps*2.1,88);
+ if(has('frost',5)&&wasSlow)for(let i=0;i<6;i++)makeShot(ex,ey,i*TAU/6,P.damage*.38,.55,1,0);
+ if(has('void',3)&&wasVoid){for(const q of enemies)if(!q.dead&&dist(q,{x:ex,y:ey})<110)q.void=Math.max(q.void||0,2);voidMarkedDeaths++;if(has('void',5)&&voidMarkedDeaths>=5){voidMarkedDeaths=0;newFx.push({type:'blackhole',x:ex,y:ey,t:3,r:170,col:'#6b4d78'});}}
+ if(has('execute',4)){for(const q of enemies)if(!q.dead&&dist(q,{x:ex,y:ey})<120){q.slow=Math.max(q.slow,.75);let a=Math.atan2(q.y-ey,q.x-ex);q.x+=Math.cos(a)*35;q.y+=Math.sin(a)*35;}}
+ if(has('soul')&&Math.random()<.12){soulOrbs.push({id:++soulId,a:Math.random()*TAU,life:has('soul',4)?14:11,giant:false});let soulCap=has('soul',3)?6:4;while(soulOrbs.filter(o=>!o.giant).length>soulCap)soulOrbs.splice(soulOrbs.findIndex(o=>!o.giant),1);if(has('soul',5)&&soulOrbs.filter(o=>!o.giant).length>=6){soulOrbs.splice(0,6);soulOrbs.push({id:++soulId,a:0,life:18,giant:true});toast('SOUL LANTERN','A GREAT FAMILIAR WAKES');}}
+ if(has('seraph',3)&&kills%((has('seraph',2)?14:18))===0)newFx.push({type:'burnfield',x:ex,y:ey,t:2.4,r:85,col:'#a44832'});
+ if(has('seraph',4)&&kills%((has('seraph',2)?14:18))===0)for(let i=0;i<4;i++)makeShot(ex,ey,i*TAU/4,P.damage*.55,.6,1,0);
+ if(has('seraph',5)&&elite){for(let i=0;i<7;i++)setTimeout(()=>{let q=nearestEnemy();if(q)explode(q.x+rnd(40,-40),q.y+rnd(40,-40),P.damage*.65,58)},i*70);}
+ if(has('scythe',5)){for(let i=0;i<3;i++){let q=nearestEnemy(ex,ey);if(q)makeShot(ex,ey,Math.atan2(q.y-ey,q.x-ex)+rnd(.3,-.3),P.damage*.72,.95,2,0);}}
+ if(has('choirbone',5)&&kills%10===0){for(let waveN=0;waveN<3;waveN++)setTimeout(()=>{for(let i=0;i<12;i++)makeShot(P.x,P.y,i*TAU/12+waveN*.18,P.damage*.48,.65,1,0)},waveN*120);}
+ if(has('plague',4)&&e.void){for(const q of enemies)if(!q.dead&&dist(q,{x:ex,y:ey})<130){q.void=Math.max(q.void||0,3);q.burn=Math.max(q.burn||0,1.5);}}
+ if(has('sacrament')&&elite){pickups.push({x:ex+12,y:ey,dead:false,spin:0});if(has('sacrament',2))pickups.push({x:ex-12,y:ey,dead:false,spin:1});}
+ if(has('grave')){let chance=has('grave',2)?.30:.18;if(Math.random()<chance||elite&&has('grave',5)){let n=elite&&has('grave',5)?3:1;for(let i=0;i<n;i++)newFx.push({type:'mine',x:ex+rnd(38,-38),y:ey+rnd(38,-38),t:6,r:has('grave',3)?78:56,col:'#8d7560'});}}
+ if(has('chains',4)&&link){for(const q of enemies)if(!q.dead&&q.linkId===link){q.hp-=P.damage*.75;if(q.hp<=0)killEnemy(q);}}
+};
+
+/* ---------- volley completion ---------- */
+const fire0=firePlayer;
+firePlayer=function(){
+ rapidVolleyN++;twinN++;
+ const oldRateBoost=rapidBurst>0;
+ fire0();
+ if(has('rapid',3)&&rapidVolleyN%9===0)fire0();
+ if(has('rapid',5)&&rapidBurst>0)fire0();
+ if(has('bellows')&&totalTime-lastHurtAt>4&&Math.random()<(has('bellows',2)?.22:.12))fire0();
+ if(has('overdrive')&&overStacks>0&&Math.random()<Math.min(.75,overStacks*.08))fire0();
+ if(has('mantle',5)&&galeBuff>0){let t=nearestEnemy();if(t)makeShot(P.x-18,P.y+10,Math.atan2(t.y-P.y,t.x-P.x),P.damage*.35,.65,P.pierce,0);}
+ if(has('trinity',3)){const req=has('trinity',2)?8:10;if(rapidVolleyN%req===0){let t=nearestEnemy();if(t){let a=Math.atan2(t.y-P.y,t.x-P.x);for(let i=-1;i<=1;i++){makeShot(P.x,P.y,a+i*.17,P.damage*1.15,1.15,2,0);if(has('trinity',4))setTimeout(()=>{let q=nearestEnemy();if(q)explode(q.x,q.y,P.damage*.65,70)},90);}}}}
+ if(has('twin')){let req=has('twin',5)?5:has('twin',2)?9:12;if(twinN%req===0){let echoes=has('twin',5)?2:1;for(let k=0;k<echoes;k++)setTimeout(()=>{let t=nearestEnemy();if(!t)return;let a=Math.atan2(t.y-P.y,t.x-P.x)+(k?Math.PI*.08:0);let n=has('mirror')&&synergyActive('twin','mirror')?2:1;for(let j=0;j<n;j++)makeShot(P.x+(j?18:-18),P.y,a+(j?Math.PI*.04:0),P.damage*(has('twin',3)?1:.7),1,P.pierce,0);},250+k*160);}}
+};
+
+/* ---------- world effects / passives / difficulty ---------- */
+function summonGuardian(emp=false){
+ let n=has('omen',3)?3:1;for(let i=0;i<n;i++){let a=i*TAU/n;let t=nearestEnemy();if(t)makeShot(P.x+Math.cos(a)*24,P.y+Math.sin(a)*24,Math.atan2(t.y-P.y,t.x-P.x),P.damage*(emp?1.3:.7),.85,1,0);}if(has('omen',4))wardInv=Math.max(wardInv,1);
+}
+function densePoint(){if(!enemies.length)return{x:P.x,y:P.y};let sx=0,sy=0,n=0;for(const e of enemies.slice(0,25)){if(!e.dead&&dist(P,e)<600){sx+=e.x;sy+=e.y;n++;}}return n?{x:sx/n,y:sy/n}:{x:P.x,y:P.y};}
+const passive0=applyPassive;
+applyPassive=function(dt){
+ const stormBefore=typeof stormCharge==='number'?stormCharge:0;passive0(dt);bloodBladeCd=Math.max(0,bloodBladeCd-dt);
+ if(has('storm',5)&&stormBefore>.75&&stormCharge<.25){stormSaint=5;stormZapClock=0;toast('THUNDER SAINT','THE STORM WALKS');}
+ if(stormSaint>0){stormSaint-=dt;stormZapClock-=dt;if(stormZapClock<=0){stormZapClock=.42;let t=nearestEnemy();if(t){t.hp-=P.damage*.65;chainFrom(t,P.damage*.28,2);if(t.hp<=0)killEnemy(t);newFx.push({type:'lightningFx',x:t.x,y:t.y,t:.22,r:55,col:'#92d8d3'});}}}
+ wardInv=Math.max(0,wardInv-
