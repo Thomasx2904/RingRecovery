@@ -1,0 +1,67 @@
+'use strict';
+(()=>{
+/* Draft the Devil — systems / audit / presentation pass.
+   Loaded last so it repairs incomplete relic branches without disturbing save-free demo structure. */
+const X=[
+ ['brand','✣','Brand of the Ninth',['Every 7th hit brands its target.','Brands detonate for 70% weapon damage.','Brand detonation scorches nearby enemies.','Branded targets take +18% damage.','ASCENSION: brand detonations jump to two fresh enemies.']],
+ ['needle','⌁','Needle Testament',['Hits lodge needles; 6 needles burst.','Needle burst damage +60%.','Needle bursts inflict bleed.','Dashing detonates all lodged needles nearby.','ASCENSION: needle bursts launch 6 seeking needles.']],
+ ['mantle','≈','Gale Mantle',['Moving continuously charges a wind edge.','Wind charges 30% faster.','Full charge grants 20% move speed for 3s.','Full charge releases a cutting gust.','ASCENSION: while moving, a spectral pilgrim repeats your shots at 35% damage.']],
+ ['sun','☼','Sunken Halo',['Every 10s release a radiant nova.','Nova interval becomes 8s.','Nova burns enemies.','Nova heals 3 HP per elite hit.','ASCENSION: nova becomes a two-stage solar eclipse blast.']],
+ ['quarry','◉','Hunter’s Moon',['Repeated hits on one target ramp damage up to +20%.','Ramp cap becomes +35%.','Ramp builds twice as fast on elites.','At max ramp, hits fire a side bolt.','ASCENSION: bosses at max ramp are struck by lunar lances every 2s.']],
+ ['bellows','≋','Black Bellows',['Not taking damage for 4s grants +12% fire rate.','Bonus becomes +22%.','After 8s untouched, gain +10% damage.','Getting hit releases a knockback blast.','ASCENSION: flawless streaks periodically unleash a 360° volley.']],
+ ['grave','♱','Grave Orchard',['Kills have 18% chance to leave a bone mine.','Chance becomes 30%.','Bone mines are larger.','Mines inflict bleed and Void.','ASCENSION: elite kills plant three giant grave mines.']],
+ ['leech','◍','Leech Crown',['Overhealing stores up to 18 blood charge.','Capacity becomes 32.','Stored blood boosts damage up to +18%.','Dashing spends half the charge in blood blades.','ASCENSION: at full charge, blood blades orbit you until they hit.']],
+ ['twin','Ⅱ','Twin Gospel',['Every 12th volley repeats after 0.25s.','Every 9th volley repeats.','Echo deals full damage.','Echo inherits all projectile modifiers.','ASCENSION: every 5th volley echoes twice from mirrored positions.']],
+ ['chains','∞','Chain of Orra',['Nearby enemies become linked in pairs.','Linked range +35%.','Linked enemies share 15% damage.','Killing one snaps the chain for bonus damage.','ASCENSION: chains propagate through crowds as a damage web.']],
+ ['omen','◐','Last Omen',['Below 35% HP summon a guardian every 12s.','Guardian interval becomes 9s.','Guardian fires 3 bolts.','Guardian also grants 1s invulnerability.','ASCENSION: below 20% HP two guardians alternate continuously.']],
+ ['hands','✋','Many Hands Sigil',['Every 9s a spectral hand slams near the densest pack.','Slam interval becomes 7s.','Slam radius +45%.','Slam pulls enemies inward first.','ASCENSION: three hands strike in sequence across the battlefield.']]
+].map(([id,icon,name,tiers])=>({id,icon,name,tiers}));
+for(const r of X){ if(!R[r.id]){ RELICS.push(r); R[r.id]=r; } }
+const moreSyn=[
+ ['brand','ember','NINTH PYRE','Brand detonations inherit burn and ignite a second ring.'],
+ ['brand','fork','LIVING CIRCUIT','Chain lightning instantly primes branded targets.'],
+ ['needle','bleed','CRIMSON PINCUSHION','Needle bursts add maximum bleed stacks before bursting.'],
+ ['needle','frost','GLASS NEEDLES','Needle bursts shatter slowed targets into ice splinters.'],
+ ['mantle','storm','TEMPEST PILGRIM','Moving charges both Gale Mantle and Storm Reliquary 35% faster.'],
+ ['sun','ember','WHITE FIRE','Solar novas convert burn into radiant explosions.'],
+ ['sun','halo','DOUBLE SAINT','Orbiting blades flash outward whenever the Sunken Halo erupts.'],
+ ['quarry','execute','MARKED FOR MERCY','Focus-ramped targets enter execute range 8% earlier.'],
+ ['bellows','rapid','WAR ORGAN','Flawless fire-rate bonuses multiply Choir of Teeth Overdrive.'],
+ ['grave','plague','PESTILENT ORCHARD','Bone mines leave plague fields on detonation.'],
+ ['grave','void','BLACK ROOTS','Grave mines pull Void-marked enemies toward them.'],
+ ['leech','blood','RED CROWN','Lifesteal overcap feeds Leech Crown twice as efficiently.'],
+ ['twin','mirror','FOURFOLD LIE','Echo volleys inherit Mirror Gospel and repeat from both sides.'],
+ ['chains','blast','BELL CHAIN','Explosions propagate 30% damage through linked enemies.'],
+ ['chains','fork','SAINT ELMO','Chain lightning follows Chain of Orra links before jumping normally.'],
+ ['omen','heart','LAST SAINT','Second Heart triggers also summon an empowered guardian.'],
+ ['hands','void','GRASP OF NIGHT','Spectral hands pull Void-marked enemies twice as strongly.'],
+ ['hands','blast','THUNDERCLAP','Hand slams trigger Ashen Bell explosions at their center.'],
+ ['scythe','quarry','MOON HARVEST','Scythes gain focus-ramp damage against your current quarry.'],
+ ['raven','needle','BLACK ACUPUNCTURE','Raven feathers lodge needles into everything they strike.']
+];
+for(const s of moreSyn) if(!SYNERGIES.some(x=>x[2]===s[2])) SYNERGIES.push(s);
+
+/* ---------- persistent combat state ---------- */
+let bloodShield=0,wardClock=12,wardInv=0,heartSave=false,critPity=0,frostHitN=0,forkHitN=0,
+ rapidVolleyN=0,rapidCombat=0,rapidBurst=0,swiftKills=0,fortPersist=0,fortVolley=0,overStacks=0,overTimer=0,
+ phoenixRage=0,stormSaint=0,voidMarkedDeaths=0,magnetCollected=0,soulOrbs=[],soulFire=0,soulId=0,
+ coinEcho=null,coinEchoAdded=false,sealStealBonus=1,sacramentCount=0,sacramentWaveBuff=1,
+ brandN=0,quarryTarget=null,quarryHits=0,lastHurtAt=-99,flawlessVolley=0,galeCharge=0,galeBuff=0,
+ sunClock=10,handsClock=9,omenClock=0,leechCharge=0,leechOrbitClock=0,twinN=0,chainClock=0,newFx=[],difficultySpawnClock=0,coinBossHpBonus=0,bloodBladeCd=0,stormZapClock=0;
+const runtime={shotSeq:0,bossHitSeq:0};
+function resetRuntime(){bloodShield=0;wardClock=12;wardInv=0;heartSave=false;critPity=0;frostHitN=0;forkHitN=0;rapidVolleyN=0;rapidCombat=0;rapidBurst=0;swiftKills=0;fortPersist=0;fortVolley=0;overStacks=0;overTimer=0;phoenixRage=0;stormSaint=0;voidMarkedDeaths=0;magnetCollected=0;soulOrbs=[];soulFire=0;coinEcho=null;coinEchoAdded=false;sealStealBonus=1;sacramentCount=0;sacramentWaveBuff=1;brandN=0;quarryTarget=null;quarryHits=0;lastHurtAt=-99;flawlessVolley=0;galeCharge=0;galeBuff=0;sunClock=10;handsClock=9;omenClock=0;leechCharge=0;leechOrbitClock=0;twinN=0;chainClock=0;newFx=[];difficultySpawnClock=0;coinBossHpBonus=0;bloodBladeCd=0;stormZapClock=0;runtime.shotSeq=0;runtime.bossHitSeq=0;}
+
+const oldStart=startRun; startRun=function(){resetRuntime();oldStart();};
+const oldGive=typeof giveDevil==='function'?giveDevil:null;if(oldGive)giveDevil=function(r){heartSave=false;oldGive(r);applyStats();};
+const oldNext=nextCycle; nextCycle=function(){
+ // remove previous temporary Coin echo before choosing a new one
+ if(coinEchoAdded&&coinEcho&&playerLv[coinEcho]>0){playerLv[coinEcho]--; if(playerLv[coinEcho]<=0)delete playerLv[coinEcho];}
+ coinEcho=null;coinEchoAdded=false;heartSave=false;sacramentWaveBuff=1;if(has('coin',3))coinBossHpBonus+=12;oldNext();applyStats();
+ if(has('coin',4)){galeBuff=Math.max(galeBuff,10);applyStats();}
+ if(has('coin',5)){
+   const opts=RELICS.filter(r=>r.id!=='coin'&&(playerLv[r.id]||0)<5);
+   if(opts.length){coinEcho=opts[Math.floor(Math.random()*opts.length)].id;playerLv[coinEcho]=(playerLv[coinEcho]||0)+1;coinEchoAdded=true;applyStats();toast('DEVIL’S INTEREST','ECHOES '+R[coinEcho].name.toUpperCase());}
+ }
+};
+
+/* 
