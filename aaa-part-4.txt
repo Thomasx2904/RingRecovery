@@ -1,0 +1,44 @@
+dt);wardClock-=dt;if(has('ward',3)&&wardClock<=0){wardClock=12;wardInv=2;if(has('ward',4)){for(const e of enemies)if(!e.dead&&dist(P,e)<150){let a=Math.atan2(e.y-P.y,e.x-P.x);e.x+=Math.cos(a)*80;e.y+=Math.sin(a)*80;}}toast('IVORY WARD','SANCTUARY');}
+ if(has('fortify')){const moving=Math.hypot(P.vx,P.vy)>20;if(!moving)fortPersist=.8;else fortPersist=Math.max(0,fortPersist-dt);if((fortifyTime>.7||fortPersist>0)&&has('fortify',5)){fortVolley-=dt;if(fortVolley<=0){fortVolley=1;for(let i=0;i<8;i++)makeShot(P.x,P.y,i*TAU/8,P.damage*.48,.6,0,0);}}}
+ if(overTimer>0){overTimer-=dt}else overStacks=Math.max(0,overStacks-dt*2);if(has('overdrive',4)&&overStacks>=5){P.x+=P.vx*dt*.12;P.y+=P.vy*dt*.12;}if(galeBuff>0){P.x+=P.vx*dt*.18;P.y+=P.vy*dt*.18;}if(has('overdrive',5)&&overStacks>=5&&Math.random()<dt*.9){let t=nearestEnemy();if(t)makeShot(P.x,P.y,Math.atan2(t.y-P.y,t.x-P.x),P.damage*.95,1.25,2,0);}
+ if(phoenixRage>0)phoenixRage-=dt;
+ if(has('rapid',5)){if(enemies.length||state==='boss'){rapidCombat+=dt;if(rapidCombat>=3){rapidBurst=3;rapidCombat=0;}}else rapidCombat=0;rapidBurst=Math.max(0,rapidBurst-dt);}
+ // Soul Lantern fully implemented.
+ soulFire-=dt;for(const o of soulOrbs)o.life-=dt;soulOrbs=soulOrbs.filter(o=>{if(o.life<=0&&has('soul',4)){let a=o.a;explode(P.x+Math.cos(a)*55,P.y+Math.sin(a)*55,P.damage*(o.giant?1.6:.6),o.giant?105:58);}return o.life>0;});if(has('soul',2)&&soulOrbs.length&&soulFire<=0){soulFire=oRate();for(const o of soulOrbs){let t=nearestEnemy();if(t){let ox=P.x+Math.cos(totalTime*2+o.a)*(o.giant?78:54),oy=P.y+Math.sin(totalTime*2+o.a)*(o.giant?78:54);makeShot(ox,oy,Math.atan2(t.y-oy,t.x-ox),P.damage*(o.giant?.75:.32),o.giant?1:.55,0,0);}}}
+ // Magnet III/IV/V.
+ if(has('magnet',3)){for(const g of pickups){if(dist(P,g)<P.magnet*.9){g.x+=Math.cos(totalTime*3+g.spin)*18*dt;g.y+=Math.sin(totalTime*3+g.spin)*18*dt;for(const e of enemies)if(!e.dead&&dist(g,e)<24)e.hp-=P.damage*.12*dt;}}}
+ // Void IV elite implosions.
+ for(const e of enemies){if(e.bleedBurstLock)e.bleedBurstLock=Math.max(0,e.bleedBurstLock-dt);if(e.bigBellCd)e.bigBellCd=Math.max(0,e.bigBellCd-dt);if(has('void',4)&&e.elite&&e.void){e.voidPulse=(e.voidPulse||2.4)-dt;if(e.voidPulse<=0){e.voidPulse=2.4;explode(e.x,e.y,P.damage*.55,85);}}}
+ // Gale Mantle.
+ if(has('mantle')){let m=Math.hypot(P.vx,P.vy)/Math.max(1,P.speed);if(m>.65)galeCharge+=dt*(has('mantle',2)?1.3:1);else galeCharge=Math.max(0,galeCharge-dt*.7);if(galeCharge>=2.5){galeCharge=0;galeBuff=Math.max(galeBuff,3);if(has('mantle',4)){let a=Math.atan2(P.vy,P.vx);for(let i=-2;i<=2;i++)makeShot(P.x,P.y,a+i*.12,P.damage*.55,.85,1,0);}if(has('mantle',5))rapidBurst=Math.max(rapidBurst,1.4);}}galeBuff=Math.max(0,galeBuff-dt);
+ if(has('leech',5)&&leechCharge>=(has('leech',2)?31:17)){leechOrbitClock-=dt;if(leechOrbitClock<=0){leechOrbitClock=.55;let t=nearestEnemy();if(t)makeShot(P.x+Math.cos(totalTime*4)*38,P.y+Math.sin(totalTime*4)*38,Math.atan2(t.y-P.y,t.x-P.x),P.damage*.65,.8,1,0);}}
+ // Solar nova.
+ if(has('sun')){sunClock-=dt;if(sunClock<=0){sunClock=has('sun',2)?8:10;solarNova();}}
+ // Black Bellows flawless volley.
+ if(has('bellows',5)&&totalTime-lastHurtAt>8){flawlessVolley-=dt;if(flawlessVolley<=0){flawlessVolley=4;for(let i=0;i<12;i++)makeShot(P.x,P.y,i*TAU/12,P.damage*.55,.72,1,0);}}
+ // Last Omen.
+ if(has('omen')&&P.hp/P.maxHp<(has('omen',5)?.2:.35)){omenClock-=dt;if(omenClock<=0){omenClock=has('omen',2)?9:12;summonGuardian(has('omen',5));}}
+ // Many Hands.
+ if(has('hands')){handsClock-=dt;if(handsClock<=0){handsClock=has('hands',2)?7:9;let p=densePoint(),n=has('hands',5)?3:1;for(let i=0;i<n;i++)setTimeout(()=>handSlam(p.x+rnd(90,-90),p.y+rnd(70,-70)),i*140);}}
+ // black holes, mines, burn fields, thorn trails and professional effect entities
+ updateSpecialFx(dt);
+};
+function oRate(){return has('soul',2)?.65:1.05;}
+function solarNova(){let rad=has('sun',5)?210:145,hits=0;for(const e of enemies)if(!e.dead&&dist(P,e)<rad){let d=P.damage*(has('sun',5)?1.25:.75);e.hp-=d;if(has('sun',3)||synergyActive('sun','ember'))e.burn=Math.max(e.burn||0,2.5);if(e.elite)hits++;if(e.hp<=0)killEnemy(e);}if(has('sun',4)&&hits)heal(hits*3);newFx.push({type:'solar',x:P.x,y:P.y,t:.55,r:rad,col:'#e8c979'});if(has('sun',5))setTimeout(()=>{for(const e of enemies)if(!e.dead&&dist(P,e)<rad*1.1){e.hp-=P.damage*.65;if(e.hp<=0)killEnemy(e)}newFx.push({type:'solar2',x:P.x,y:P.y,t:.4,r:rad*1.1,col:'#f1d99b'});},220);if(synergyActive('sun','halo')&&P.orbit)for(let i=0;i<P.orbit*2;i++)makeShot(P.x,P.y,i*TAU/(P.orbit*2),P.damage*.5,.7,1,0);}
+function handSlam(x,y){if(has('hands',4)){for(const e of enemies)if(!e.dead&&Math.hypot(e.x-x,e.y-y)<180){let a=Math.atan2(y-e.y,x-e.x);let mul=synergyActive('hands','void')&&e.void?2:1;e.x+=Math.cos(a)*45*mul;e.y+=Math.sin(a)*45*mul;}}let r=has('hands',3)?130:90;explode(x,y,P.damage*(has('hands',5)?1.35:.85),r);if(synergyActive('hands','blast'))explode(x,y,P.blastDamage||P.damage*.5,r*.6);newFx.push({type:'hand',x,y,t:.45,r,col:'#bba387'});}
+function updateSpecialFx(dt){
+ for(const f of newFx){f.t-=dt;if(f.type==='blackhole'){for(const e of enemies)if(!e.dead&&dist(f,e)<f.r){let a=Math.atan2(f.y-e.y,f.x-e.x);e.x+=Math.cos(a)*95*dt;e.y+=Math.sin(a)*95*dt;e.hp-=P.damage*.22*dt;}}else if(f.type==='mine'){for(const e of enemies)if(!e.dead&&dist(f,e)<f.r*.65){f.t=0;let dd=P.damage*(has('grave',3)?1.25:.85);explode(f.x,f.y,dd,f.r);if(has('grave',4)){e.bleed=3;e.bleedStacks=Math.max(e.bleedStacks||0,3);e.void=3;}if(synergyActive('grave','plague'))for(const q of enemies)if(!q.dead&&dist(f,q)<100)q.burn=2.2;break;}}else if(f.type==='burnfield'){for(const e of enemies)if(!e.dead&&dist(f,e)<f.r)e.hp-=P.damage*.18*dt;}else if(f.type==='thorn'){for(const e of enemies)if(!e.dead&&dist(f,e)<f.r)e.hp-=P.damage*.12*dt;}}
+ newFx=newFx.filter(f=>f.t>0);
+ // chains update
+ if(has('chains')){chainClock-=dt;if(chainClock<=0){chainClock=.8;let near=enemies.filter(e=>!e.dead&&dist(P,e)<(has('chains',2)?420:310)).slice(0,18);for(let i=0;i<near.length-1;i+=2){let id=(near[i].linkId||near[i+1].linkId||('L'+Math.random()));near[i].linkId=id;near[i+1].linkId=id;}}}
+}
+
+/* damage sharing for Chain of Orra + boss bonuses */
+const hitBoss0=hitBoss;hitBoss=function(s,f){s={...s};if(P.bossBonus)s.damage*=1+P.bossBonus;if(has('quarry')){quarryHits++;let cap=has('quarry',2)?.35:.20;s.damage*=1+Math.min(cap,quarryHits*.025);if(has('quarry',5)&&quarryHits>14){runtime.bossHitSeq++;if(runtime.bossHitSeq%8===0)boss.hp-=P.damage*1.8;}}hitBoss0(s,f);if(has('blast',5)){runtime.bossHitSeq++;if(runtime.bossHitSeq%12===0)boss.hp-=P.blastDamage*2.5;}if(phoenixRage>0)boss.hp-=s.damage;};
+
+/* pickup completion */
+const pickup0=updatePickups;updatePickups=function(dt){let before=pickups.length;pickup0(dt);let got=Math.max(0,before-pickups.length);if(got){magnetCollected+=got;sacramentCount+=got;if(has('magnet',4))galeBuff=Math.max(galeBuff,1.5);if(has('magnet',5)&&magnetCollected>=20){magnetCollected%=20;let t=nearestEnemy();if(t){explode(t.x,t.y,P.damage*2.3,120);newFx.push({type:'comet',x:t.x,y:t.y,t:.5,r:120,col:'#c7aa6c'});}}if(has('sacrament',5)&&sacramentCount>=20){sacramentCount%=20;explode(P.x,P.y,P.damage*2.2,140);}if(has('sacrament',3)&&sacramentCount>=15){sacramentCount%=15;sacramentWaveBuff*=1.05;applyStats();}}
+};
+
+/* enemy HP/amount scaling: intentionally more pressure in later covenants. */
+const spawn0=spawnEnemy;spawnEnemy=function(){const n=enemies.length;spawn0();for(let i=n;i<enemies.length;i++){const e=enemies[i];let mult=1+Math.max(0,cycle-1)*.28+Math.max(0,wave-1)*.045+Math.min(.65,totalTime/900);if(e.elite)mult*=1.15;e.hp*=mult;e.maxHp*=mult;e.speed*=1+Math.min(.12,(cycle-1)*.025);}};
