@@ -10,11 +10,12 @@
 <meta name="application-name" content="Draft the Devil">
 <meta name="apple-mobile-web-app-title" content="Draft the Devil">
 <meta name="format-detection" content="telephone=no">
-<title>Draft the Devil</title>
+<title>Draft the Devil · 4.1</title>
 <link rel="manifest" href="./draft-the-devil.webmanifest">
 <link rel="icon" href="./draft-the-devil-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./draft-the-devil-icon.svg">
 <link rel="stylesheet" href="./cloister-v4.css">
+<link rel="stylesheet" href="./cloister-v41.css?v=4.1.0">
 <style>
 html,body{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none;background:#0b171d;color:#eee2c5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body{position:fixed;inset:0;padding:0;touch-action:none}
@@ -41,13 +42,16 @@ addEventListener('error',()=>bootFailure());
 <div class="notice" id="notice"><strong></strong><small></small></div>
 <div class="rotateHint" id="rotateHint">For the best view, turn your device sideways.<br>Tap this message to play in portrait.</div>
 <div class="overlay" id="overlay"><section class="panel" id="panel"><h1>Opening the covenant…</h1></section></div>
-<div class="buildmark">4.0.2 · HOME SCREEN</div>
+<div class="buildmark">4.1.0 · COVENANTS</div>
 </main>
 <script src="./cloister-v4-data.js" onerror="bootFailure()"></script>
 <script src="./cloister-v4-combat.js" onerror="bootFailure()"></script>
+<script src="./cloister-v41-rules.js?v=4.1.0" onerror="bootFailure()"></script>
+<script src="./cloister-v41-balance.js?v=4.1.0" onerror="bootFailure()"></script>
 <script src="./cloister-v4-art.js" onerror="bootFailure()"></script>
+<script src="./cloister-v41-clarity.js?v=4.1.0" onerror="bootFailure()"></script>
 <script src="./cloister-v4-input.js" onerror="bootFailure()"></script>
-<script src="./cloister-v4-ui.js" onerror="bootFailure()"></script>
+<script src="./cloister-v4-ui.js?v=4.1.0" onerror="bootFailure()"></script>
 <script>
 (function(){
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./dtd-sw.js').catch(()=>{});}
