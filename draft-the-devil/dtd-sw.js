@@ -1,6 +1,7 @@
-const CACHE='draft-the-devil-v4.0.2';
+const CACHE='draft-the-devil-v4.0.3';
 const CORE=[
-  './draft-the-devil-app.html',
+  './',
+  './index.html',
   './draft-the-devil.webmanifest',
   './draft-the-devil-icon.svg',
   './cloister-v4.css',
@@ -22,5 +23,5 @@ self.addEventListener('fetch',event=>{
     const copy=res.clone();
     if(new URL(event.request.url).origin===self.location.origin)caches.open(CACHE).then(c=>c.put(event.request,copy));
     return res;
-  }).catch(()=>caches.match('./draft-the-devil-app.html'))));
+  }).catch(()=>caches.match('./index.html'))));
 });
