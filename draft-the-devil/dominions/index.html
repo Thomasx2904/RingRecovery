@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b171d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="application-name" content="Draft the Devil">
+<meta name="apple-mobile-web-app-title" content="Draft the Devil">
+<meta name="format-detection" content="telephone=no">
+<title>Draft the Devil · Infernal Dominions</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="./assets/survivor.webp" type="image/webp"><link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./assets/survivor.webp">
+<link rel="stylesheet" href="./core/cloister-v4.css">
+<style>
+html,body{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none;background:#0b171d;color:#eee2c5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{position:fixed;inset:0;padding:0;touch-action:none}
+#boot{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 38%,#17313b 0,#0b171d 58%,#070d10 100%);font:16px/1.6 Georgia,serif;padding:max(30px,env(safe-area-inset-top)) max(30px,env(safe-area-inset-right)) max(30px,env(safe-area-inset-bottom)) max(30px,env(safe-area-inset-left));box-sizing:border-box}
+#boot strong{display:block;font-size:28px;letter-spacing:.04em;color:#f0d8a7;margin-bottom:8px}#boot small{font:11px/1.5 system-ui,-apple-system,sans-serif;color:#9ebcaf;display:block;letter-spacing:.14em;text-transform:uppercase}
+@media (display-mode: standalone),(display-mode: fullscreen){html,body{background:#071014}#app{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);box-sizing:border-box}}
+</style>
+<script>
+window.bootFailure=function(msg){const e=document.getElementById('boot');if(e){e.style.display='grid';e.innerHTML='<div><strong>Draft the Devil</strong><small>'+(msg||'A game file could not load. Reopen the app while online once, then try again.')+'</small></div>';}};
+addEventListener('error',()=>bootFailure());
+</script>
+</head>
+<body>
+<div id="boot"><div><strong>Draft the Devil</strong><small>Opening the first seal…</small></div></div>
+<main id="app">
+<canvas id="game" aria-label="Draft the Devil game world"></canvas>
+<header class="hud"><div class="healthPlate"><div class="portrait" aria-label="The mortal survivor"></div><div class="healthBody"><div class="healthTrack"><i id="hpbar"></i></div><div class="healthNumbers"><span id="hptext">100 / 100</span><span id="shieldtext"></span></div></div></div><div class="substats"><span><b id="kills">0</b> KILLS</span><span id="time">00:00</span></div></header>
+<div class="covenant"><span id="realmName" class="realmName">THE DROWNED CLOISTER</span><strong id="covenant">COVENANT I</strong><small id="wave">WAVE 1 / 10</small><div class="waveTrack"><i id="wavebar"></i></div></div>
+<div class="mapWrap"><div class="mapFrame"><canvas id="mini" width="160" height="160"></canvas></div><small id="mapLabel">THE DROWNED CLOISTER</small></div>
+<nav class="nav"><button id="journalBtn" aria-label="Relic journal">♜</button><button id="pause" aria-label="Pause">Ⅱ</button></nav>
+<div class="buildbar" id="relicrail"></div>
+<div class="controls"><div class="joy" id="joy" role="application" aria-label="Movement joystick"><span class="controlName">MOVE</span><div class="stick" id="stick"></div></div><button id="dash" class="dash" aria-label="Dash"><span class="mark">➶</span><small id="dashText">DASH</small></button></div>
+<div class="bossHud" id="bossHud"><strong>THE DEVIL</strong><div class="bossTrack"><i id="bossFill"></i></div><small id="bossNumbers"></small></div>
+<div class="notice" id="notice"><strong></strong><small></small></div>
+<div class="rotateHint" id="rotateHint">For the best view, turn your device sideways.<br>Tap this message to play in portrait.</div>
+<div class="overlay" id="overlay"><section class="panel" id="panel"><h1>Opening the covenant…</h1></section></div>
+<div id="tourBar" hidden></div><div class="buildmark">5.0.1 · INFERNAL DOMINIONS</div>
+</main>
+<script src="./core/cloister-v4-data.js" onerror="bootFailure()"></script>
+<script src="./core/cloister-v4-combat.js" onerror="bootFailure()"></script>
+<script src="./core/cloister-v41-rules.js?v=4.1.0" onerror="bootFailure()"></script>
+<script src="./core/cloister-v41-balance.js?v=4.1.0" onerror="bootFailure()"></script>
+<script src="./core/cloister-v4-art.js" onerror="bootFailure()"></script>
+<script src="./core/cloister-v41-clarity.js?v=4.1.0" onerror="bootFailure()"></script>
+<script src="./core/cloister-v4-input.js" onerror="bootFailure()"></script>
+<script src="./core/cloister-v43-preview.js?v=4.3.0" onerror="bootFailure()"></script>
+<script src="./launch.js?v=5.0.1"></script>
+</body></html>
