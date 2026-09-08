@@ -1,8 +1,9 @@
 {
+  "id": "./",
   "name": "Draft the Devil",
   "short_name": "Draft Devil",
   "description": "An endless action roguelite where every rejected relic empowers the Devil.",
-  "start_url": "./draft-the-devil-app.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "display_override": ["fullscreen", "standalone"],
