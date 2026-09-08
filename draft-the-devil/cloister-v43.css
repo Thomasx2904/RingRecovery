@@ -1,0 +1,41 @@
+/* Covenant 4.1: readable receipts and distinct player identity. */
+.receiptGrid{display:grid;grid-template-columns:1fr 1.2fr;gap:14px;text-align:left}.receiptGrid .sectionFrame{margin:6px 0;padding:14px}.receiptGrid p{font-size:12px;line-height:1.5;color:#c6d8d3}.receiptGrid h3{font:24px Georgia,serif;color:#f5e6c2}.bossContracts{max-height:32vh;overflow-y:auto;text-align:left}.bossContracts p{margin:8px 0 14px;line-height:1.5}.cardNote{font-size:10px;line-height:1.4;margin:8px 0;color:#a9c7ca}.portrait{border-color:#71edff;background:radial-gradient(#447f9b,#163950);box-shadow:0 0 0 3px #102a36,0 0 0 4px #70d6ff66}.portrait:before{color:#efffff}.bossHud small{max-width:100%;white-space:normal;line-height:1.35}@media(max-height:470px){.receiptGrid .sectionFrame{padding:8px 12px}.receiptGrid p{font-size:11px;margin:7px 0}.receiptGrid h3{font-size:21px}.receiptGrid .tier{margin-top:3px}.cardNote{font-size:9px;margin:4px 0}.bossContracts{max-height:26vh}}@media(orientation:portrait) and (max-width:650px){.receiptGrid{grid-template-columns:1fr;gap:6px}}
+
+/* Covenant 4.2: stronger gothic UI pass */
+.hud,.mapWrap,.nav,.buildbar,.bossHud{filter:drop-shadow(0 8px 16px #02070ccc)}
+.healthBody,.bossHud,.mapFrame,.nav button,.relicpip,.card,.entry,.sectionFrame,.panel .rules{backdrop-filter:blur(8px) saturate(1.05)}
+.hud{padding:10px 12px 12px;border:1px solid #8eb4b433;border-radius:18px;background:linear-gradient(180deg,#102631ce,#0a1821b8)}
+.healthTrack{border-color:#82b5be7d;box-shadow:0 0 0 1px #c4b98b2b,0 0 0 5px #091620cc,inset 0 0 18px #071218}.healthTrack i{background:linear-gradient(90deg,#4ed2ee,#90f7ff 35%,#ffd091 100%)}
+.substats{margin-left:56px;color:#d6ebe4}.substats b{color:#fff6d1}
+.covenant{padding:8px 18px 12px;border:1px solid #88b0b03d;border-radius:999px;background:linear-gradient(180deg,#102430c8,#0b1722b0);box-shadow:0 0 0 1px #d7c58b15 inset}
+.waveTrack{height:4px;border-radius:999px;overflow:hidden;background:#ceb67a24}.waveTrack i{background:linear-gradient(90deg,#4ad7f5,#f8c27a)}
+.mapFrame{box-shadow:0 0 0 1px #c7e8ef21 inset,0 0 0 3px #0d2229dd,0 0 0 4px #9d906044,0 12px 24px #02070b80}
+.nav button{background:linear-gradient(180deg,#18303dcf,#0d1f29db);border-color:#9ec8c655;color:#f2ddb0;box-shadow:inset 0 0 20px #081821,0 4px 10px #0006}.nav button:hover{transform:translateY(-1px)}
+.buildbar{padding:8px;border:1px solid #86a9a93a;border-radius:14px;background:linear-gradient(180deg,#0e202ab8,#09151db0)}
+.relicpip{border-color:#8dc0c644;border-radius:11px;background:linear-gradient(180deg,#122b35,#0c1b25);box-shadow:inset 0 0 0 1px #d8c3850e}
+.bossHud{padding:10px 14px;border:1px solid #a692714d;border-radius:18px;background:linear-gradient(180deg,#160d16d0,#0f1720c0)}
+.bossTrack{height:12px;border-radius:999px;overflow:hidden;border-color:#d1b99188;box-shadow:0 0 0 1px #0008 inset,0 0 0 4px #10222aee}.bossTrack i{background:linear-gradient(90deg,#e28572,#b3453d 50%,#f0c188)}
+.notice strong{text-shadow:0 0 22px #7dd8ee44,0 3px 15px #041520}.notice small{color:#e4f8fb}
+.overlay{background:radial-gradient(circle at 50% 10%,#25506455,transparent 28%),linear-gradient(115deg,#09131ced,#132735ec,#08131aec)}
+.card,.entry,.sectionFrame{border-radius:14px;border-color:#8cb1b14a;box-shadow:0 12px 28px #0006,inset 0 0 0 1px #dfc98a12}.card{background:linear-gradient(160deg,#67888833,#10212cd9 68%,#08131acc)}.card:hover{transform:translateY(-2px);box-shadow:0 16px 34px #0008,inset 0 0 0 1px #e5cf9340}.card.ascend{background:linear-gradient(160deg,#8a7f503d,#16353be6 72%,#0a1721)}
+.icon{background:radial-gradient(circle at 35% 30%,#f3efde1e,#0a171d);border-color:#98c5c06a;box-shadow:0 0 28px #7fd8eb10,inset 0 0 0 4px #d9c58e09}
+.primary,.secondary{border-radius:999px}.primary{background:linear-gradient(135deg,#eff6fb,#9cecf4 32%,#efc882 100%);color:#0d2130;border-color:#d9d0b0}.secondary{background:linear-gradient(180deg,#17303b90,#0b162095);border-color:#9ec4c264}
+.receiptGrid h3,.draftTitle,.title em,.entry strong{letter-spacing:.2px;text-shadow:0 0 20px #73dff71a}
+
+/* Gilded Nocturne: themed motion, accessibility and compact-screen safeguards. */
+.introCrest{position:relative;display:inline-flex;align-items:center;justify-content:center;width:74px;height:74px;margin:0 0 16px;border-radius:50%;border:1px solid #9ec4c55a;background:radial-gradient(circle at 35% 30%,#315365,#10222d 70%,#0b1620);box-shadow:0 0 0 4px #08131dcc,0 12px 28px #0008,inset 0 0 28px #83dffb11;color:#f3ddb1;font-size:36px;animation:crestPulse 4s ease-in-out infinite}
+.title em{color:#f6e2b8;text-shadow:0 0 28px #7ce6ff20}.lead{color:#daece8}.fine{color:#a9c6c8}
+.card,.nav button,.primary,.secondary{transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.primary:hover,.secondary:hover{box-shadow:0 12px 24px #0007,inset 0 0 0 1px #fff2}
+.relicpip.max{box-shadow:0 0 0 1px #f2d38d66,inset 0 0 16px #f2d38d14,0 0 18px #f2d38d18}
+#dash{box-shadow:0 0 0 1px #d5bc8144,inset 0 0 18px #88deef10,0 8px 18px #0006}#dash:not(.cool){animation:dashGlow 2s ease-in-out infinite}
+#joy{box-shadow:0 0 0 1px #8ec5cb40,inset 0 0 20px #9adff40d,0 8px 18px #0006}
+.sectionFrame.stats div b{color:#fff4ce;text-shadow:0 0 18px #f7d48a18}
+.buildmark{color:#b0c7c6;z-index:22;font-size:8px;pointer-events:none}
+.cards .card{animation:cardAppear .25s ease-out both}.cards .card:nth-child(2){animation-delay:.05s}.cards .card:nth-child(3){animation-delay:.1s}
+@keyframes crestPulse{50%{box-shadow:0 0 0 4px #08131dcc,0 16px 34px #0009,inset 0 0 34px #83dffb25}}
+@keyframes dashGlow{50%{box-shadow:0 0 0 1px #d5bc8177,inset 0 0 22px #88deef24,0 8px 18px #0006}}
+@keyframes cardAppear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-height:470px){.hud{padding:6px 8px;width:235px}.covenant{padding:4px 16px 8px;min-width:192px;top:calc(9px + var(--safeT))}.covenant strong{font-size:13px;letter-spacing:2px}.buildbar{max-height:47px;top:calc(105px + var(--safeT));padding:4px}.bossHud{padding:5px 9px}.introCrest{width:52px;height:52px;font-size:28px;margin-bottom:9px}.card{border-radius:9px}.mapFrame,.hud,.nav button,.relicpip,.bossHud{backdrop-filter:none}.overlay{padding-top:12px;padding-bottom:22px}.rules{padding-top:8px;padding-bottom:8px}.introLayout .rules p{margin-bottom:9px}}
+@media(max-height:340px){.hud{width:210px;padding:4px 8px}.covenant{min-width:180px}.covenant strong{font-size:12px}.buildbar{top:90px;max-height:33px}.introLayout{gap:22px}.introCrest{width:42px;height:42px;font-size:24px}.introLayout .rules p{font-size:11px;line-height:1.5}.title{font-size:36px}.rules .fine{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
