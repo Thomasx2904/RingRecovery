@@ -19,7 +19,7 @@
     if(!await DTD.artReady)throw new Error('The illustrated assets could not be decoded.');
     (0,eval)(pack.code[2]);
     if(!window.__DTD__||!__DTD__.controls)throw new Error('Game input did not initialise.');
-    DTD.VERSION='5.0.1';__DTD__.version='5.0.1';
+    DTD.VERSION='5.2.0';__DTD__.version='5.2.0';
     boot.style.display='none';
     document.documentElement.classList.toggle('standalone',matchMedia('(display-mode: standalone)').matches||navigator.standalone===true);
     if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(e=>console.warn('Offline cache unavailable',e));
