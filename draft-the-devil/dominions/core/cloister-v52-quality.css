@@ -1,0 +1,21 @@
+/* 5.2 mobile/layout + presentation pass. Loaded after the packed presentation via JS as well. */
+html{--safeT:env(safe-area-inset-top,0px);--safeR:env(safe-area-inset-right,0px);--safeB:env(safe-area-inset-bottom,0px);--safeL:env(safe-area-inset-left,0px)}
+#app{isolation:isolate}
+#app::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at 50% 48%,transparent 46%,rgba(2,3,6,.18) 76%,rgba(0,0,0,.42) 100%);mix-blend-mode:multiply}
+.hud,.covenant,.mapWrap,.nav,.buildbar,.controls,.bossHud,.notice{z-index:6}
+.controls{position:absolute;inset:0;pointer-events:none;z-index:9}
+.joy,.dash{backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.joy{left:calc(var(--safeL) + 26px)!important;bottom:calc(var(--safeB) + 24px)!important;box-shadow:inset 0 0 0 1px #f2d7a41d,inset 0 -12px 28px #0005,0 10px 30px #0009!important}
+.dash{right:calc(var(--safeR) + 28px)!important;bottom:calc(var(--safeB) + 28px)!important;box-shadow:inset 0 0 0 1px #f1c8901a,inset 0 -10px 24px #0006,0 10px 30px #0009!important}
+.stick{transition:transform .035s linear,filter .12s;filter:drop-shadow(0 5px 4px #0008)}
+.joy.active .stick{filter:drop-shadow(0 7px 7px #000b) brightness(1.15)}
+.dash:active{transform:scale(.94);filter:brightness(1.18)}
+.card,.primary,.secondary,.nav button{transition:transform .16s ease,border-color .16s ease,background .16s ease,filter .16s ease}
+.card:active{transform:translateY(2px) scale(.992)}
+.card:focus-visible,.primary:focus-visible,.secondary:focus-visible,.nav button:focus-visible{outline:2px solid #f1d79a;outline-offset:3px}
+.healthPlate,.covenant,.mapFrame,.buildbar,.bossHud{filter:drop-shadow(0 8px 18px #0008)}
+@media (max-width:699px) and (orientation:landscape){:root{--control:102px!important}.joy{left:calc(var(--safeL) + 20px)!important;bottom:calc(var(--safeB) + 18px)!important}.dash{right:calc(var(--safeR) + 22px)!important;bottom:calc(var(--safeB) + 20px)!important}.hud{left:calc(var(--safeL) + 18px)!important}.mapWrap{right:calc(var(--safeR) + 18px)!important}.nav{right:calc(var(--safeR) + 94px)!important}.bossHud{bottom:calc(var(--safeB) + 20px)!important;max-width:46vw}.buildbar{left:calc(var(--safeL) + 18px)!important;max-width:35vw!important}}
+@media (min-width:700px) and (orientation:landscape){:root{--control:138px!important}.joy{left:calc(var(--safeL) + 38px)!important;bottom:calc(var(--safeB) + 34px)!important}.dash{right:calc(var(--safeR) + 42px)!important;bottom:calc(var(--safeB) + 38px)!important}.hud{left:calc(var(--safeL) + 34px)!important;top:calc(var(--safeT) + 28px)!important}.mapWrap{right:calc(var(--safeR) + 34px)!important;top:calc(var(--safeT) + 28px)!important}.nav{right:calc(var(--safeR) + 166px)!important;top:calc(var(--safeT) + 31px)!important}.buildbar{left:calc(var(--safeL) + 34px)!important;top:calc(var(--safeT) + 132px)!important}.covenant{top:calc(var(--safeT) + 30px)!important}.panel{max-width:1080px!important}.cards{max-width:980px!important}.card{min-height:320px!important}}
+@media (orientation:portrait){.joy{left:calc(var(--safeL) + 24px)!important;bottom:calc(var(--safeB) + 30px)!important}.dash{right:calc(var(--safeR) + 24px)!important;bottom:calc(var(--safeB) + 32px)!important}.bossHud{bottom:calc(var(--safeB) + 174px)!important}.rotateHint{max-width:430px;margin:auto;left:7%;right:7%}}
+@media (min-width:700px) and (orientation:portrait){:root{--control:150px!important}.joy{left:calc(var(--safeL) + 48px)!important;bottom:calc(var(--safeB) + 50px)!important}.dash{right:calc(var(--safeR) + 52px)!important;bottom:calc(var(--safeB) + 54px)!important}.bossHud{bottom:calc(var(--safeB) + 210px)!important}.overlay{padding-left:calc(var(--safeL) + 54px)!important;padding-right:calc(var(--safeR) + 54px)!important}}
+#dtdDiag{position:absolute;z-index:80;left:calc(var(--safeL) + 10px);bottom:calc(var(--safeB) + 10px);width:min(520px,92vw);max-height:42vh;overflow:auto;background:#071014ef;border:1px solid #bc9f6c88;color:#d9d3bd;padding:10px 12px;font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;pointer-events:auto;box-shadow:0 12px 35px #000b}#dtdDiag[hidden]{display:none}#dtdDiag b{color:#f1d18e}
