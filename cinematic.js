@@ -45,7 +45,7 @@ else window.addEventListener('resize',headerSize,{passive:true});
 // Enquiries are emailed straight to Thomas through Web3Forms when FORM_KEY is set (the key is
 // public by design). Without a key, or if sending fails, the message is handed to the visitor's
 // own email or text app instead, with a manual clipboard fallback.
-const FORM_KEY='';
+const FORM_KEY='24c21fe1-f4dd-47ce-abfa-5dc3a006edd5';
 const form=$('lost-form'), error=$('form-error'), result=$('enquiry-result'), sent=$('enquiry-sent'), messageField=$('enquiry-message'), phone=$('phone'), email=$('email');
 const submitButton=form.querySelector('.submit-button'), submitLabel=$('submit-label'), idleLabel=FORM_KEY?'Send my enquiry':'Prepare my enquiry';
 if (FORM_KEY) {
