@@ -12,14 +12,7 @@ function animate(el, frames, options) {
   a.onfinish = a.oncancel = () => animations.delete(a); return a;
 }
 // All functional behaviour is initialised before visual enhancements.
-const returnAt = Date.parse('2026-09-25T00:00:00+09:30');
-function availability() {
-  document.querySelectorAll('[data-away]').forEach(el => { el.hidden = Date.now() >= returnAt; });
-  $('year').textContent = new Date().getFullYear();
-}
-availability();
-window.addEventListener('pageshow', availability);
-if (returnAt > Date.now() && returnAt - Date.now() < 2147483647) setTimeout(availability, returnAt - Date.now() + 1000);
+$('year').textContent = new Date().getFullYear();
 const header = $('header'), menu = $('mobile-menu'), menuButton = $('menu-toggle');
 const desktop = matchMedia('(min-width: 781px)');
 function closeMenu(focus = false) {
@@ -49,12 +42,38 @@ headerSize();
 if ('ResizeObserver' in window) new ResizeObserver(headerSize).observe(header);
 else window.addEventListener('resize',headerSize,{passive:true});
 
-// A real email/SMS hand-off, with validation and a manual clipboard fallback.
-const form=$('lost-form'), error=$('form-error'), result=$('enquiry-result'), messageField=$('enquiry-message'), phone=$('phone'), email=$('email');
+// Enquiries are emailed straight to Thomas through Web3Forms when FORM_KEY is set (the key is
+// public by design). Without a key, or if sending fails, the message is handed to the visitor's
+// own email or text app instead, with a manual clipboard fallback.
+const FORM_KEY='';
+const form=$('lost-form'), error=$('form-error'), result=$('enquiry-result'), sent=$('enquiry-sent'), messageField=$('enquiry-message'), phone=$('phone'), email=$('email');
+const submitButton=form.querySelector('.submit-button'), submitLabel=$('submit-label'), idleLabel=FORM_KEY?'Send my enquiry':'Prepare my enquiry';
+if (FORM_KEY) {
+  submitLabel.textContent=idleLabel;
+  $('privacy-note').textContent='Your enquiry is emailed to Thomas through Web3Forms when you press Send. Your details are only used to reply to you.';
+}
 function clearError() { error.hidden=true; phone.setCustomValidity(''); email.setCustomValidity(''); }
+async function deliver(fields) {
+  const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),15000);
+  try {
+    const response=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(fields),signal:controller.signal});
+    const data=await response.json().catch(()=>({}));
+    return response.ok && data.success===true;
+  } catch (_) { return false; } finally { clearTimeout(timer); }
+}
+function showHandoff(failed) {
+  $('enquiry-result-title').textContent=failed?'That didn’t send from the website. Please send it yourself.':'Your message is ready — not sent yet.';
+  $('copy-status').textContent=''; result.hidden=false;
+  $('enquiry-result-title').focus({preventScroll:true}); result.scrollIntoView({behavior:paused()?'auto':'smooth',block:'nearest'});
+}
+$('send-another').addEventListener('click', () => {
+  sent.hidden=true; form.hidden=false; result.hidden=true;
+  $('item').value=''; $('where').value=''; $('item').focus();
+});
 form.addEventListener('input', () => { clearError(); result.hidden=true; });
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
   event.preventDefault(); clearError();
+  if (submitButton.disabled) return;
   const name=$('name').value.trim(), phoneValue=phone.value.trim(), emailValue=email.value.trim(), item=$('item').value.trim(), where=$('where').value.trim();
   $('name').value=name; $('item').value=item; $('where').value=where; phone.value=phoneValue; email.value=emailValue;
   if (!phoneValue && !emailValue) phone.setCustomValidity('Please include a phone number or email address so I can reply.');
@@ -63,7 +82,7 @@ form.addEventListener('submit', event => {
     error.textContent='Please include your name, a way to reply, what you lost, and where and when. Check any highlighted fields.';
     error.hidden=false; form.reportValidity(); return;
   }
-  const lines=['Hi Thomas,', '', "I'd like to enquire about a lost-item search.", '', 'Name: '+name];
+  const lines=['Hi Thomas,', '', 'I’d like to enquire about a lost-item search.', '', 'Name: '+name];
   if (phoneValue) lines.push('Phone: '+phoneValue);
   if (emailValue) lines.push('Email: '+emailValue);
   lines.push('Lost item: '+item,'Where and when: '+where);
@@ -71,8 +90,18 @@ form.addEventListener('submit', event => {
   $('send-email').href='mailto:thomas.scherrer1@outlook.com?subject='+encodeURIComponent('Ring Recovery enquiry — '+item)+'&body='+encodeURIComponent(message);
   const apple=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   $('send-sms').href='sms:+61431196875'+(apple?'&':'?')+'body='+encodeURIComponent(message);
-  $('copy-status').textContent=''; result.hidden=false;
-  $('enquiry-result-title').focus({preventScroll:true}); result.scrollIntoView({behavior:paused()?'auto':'smooth',block:'nearest'});
+  if (!FORM_KEY) { showHandoff(false); return; }
+  if ($('botcheck').checked) { form.hidden=true; sent.hidden=false; return; }
+  submitButton.disabled=true; submitLabel.textContent='Sending…'; result.hidden=true; $('send-status').textContent='Sending your enquiry…';
+  const fields={access_key:FORM_KEY,subject:'Ring Recovery enquiry — '+item,from_name:'Ring Recovery website',name};
+  if (phoneValue) fields.phone=phoneValue;
+  if (emailValue) fields.email=emailValue;
+  fields['Lost item']=item; fields['Where and when']=where;
+  const ok=await deliver(fields);
+  submitButton.disabled=false; submitLabel.textContent=idleLabel; $('send-status').textContent='';
+  if (!ok) { showHandoff(true); return; }
+  form.hidden=true; sent.hidden=false;
+  $('sent-title').focus({preventScroll:true}); sent.scrollIntoView({behavior:paused()?'auto':'smooth',block:'nearest'});
 });
 $('copy-message').addEventListener('click', async () => {
   try {
@@ -337,7 +366,7 @@ function createRing() {
 }
 try { renderer=createRing(); } catch (_) { $('ring-stage').classList.remove('is-webgl'); }
 document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden){availability();scheduleScroll();}
+  if(!document.hidden){scheduleScroll();}
   document.querySelectorAll('.water-ripples i,.waveform i').forEach(el=>{el.style.animationPlayState=document.hidden?'paused':'';});
 });
 scheduleScroll();

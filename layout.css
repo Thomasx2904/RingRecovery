@@ -181,3 +181,28 @@ input, textarea { scroll-margin-top: calc(var(--header-h) + 20px); scroll-margin
   .text-link:hover { gap: 22px; }
 }
 @media print { .motion-toggle, .menu-preferences, .footer-preferences { display: none !important; } }
+
+/* Enquiry delivery: a honeypot people never see, and the sent confirmation. */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.submit-button:disabled { opacity: .7; cursor: progress; }
+.enquiry-sent { border-left: 2px solid var(--copper); padding: 4px 0 4px 20px; }
+.enquiry-sent h4 { margin: 0 0 8px; font: 26px/1.2 var(--display); letter-spacing: -.02em; }
+.enquiry-sent p { font-size: 14px; line-height: 1.8; color: var(--muted); }
+.enquiry-sent a { text-decoration: underline; text-underline-offset: 3px; }
+.enquiry-sent .copy-button { margin-top: 18px; }
+.contact-note { margin-top: 22px; font-size: 13px; line-height: 1.7; color: #c0d0be; }
+.contact-note a { text-decoration: underline; text-underline-offset: 3px; }
+p a[href^="tel:"] { white-space: nowrap; }
+
+/* Keyword labels that sit inside a heading keep the small-label look. */
+h1 .eyebrow, h2 .eyebrow { font-family: var(--sans); }
+.area-links { display: flex; flex-wrap: wrap; align-items: end; gap: 6px 30px; }
+@media (max-width: 780px) { .area-links { gap: 0 22px; } }
+
+/* Links to the guide pages, shared with the guide pages' footers. */
+.footer-links { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-block: 22px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.footer-links b { font-weight: 600; color: var(--ink); margin-right: 4px; }
+.footer-links a { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #61716a60; }
+.footer-links a:hover, .footer-links a[aria-current="page"] { color: var(--ink); }
+.footer-links a[aria-current="page"] { text-decoration: none; }
+@media (max-width: 780px) { .footer-links { gap: 8px 20px; font-size: 11px; } .footer-links b { flex-basis: 100%; } }
